@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="template-Auto-Documentation_files/red.ico">
+
+    <title>Red Function Dictionary</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="template-Auto-Documentation_files/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="template-Auto-Documentation_files/offcanvas.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="template-Auto-Documentation_files/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="template-Auto-Documentation_files/html5shiv.min.js"></script>
+      <script src="template-Auto-Documentation_files/respond.min.js"></script>
+    <![endif]-->
+
+
+<script>
+function iframeLoadFile(aryFilename, fnEach, fnFinish, isHtmlFile, idxFile) {
+    if (idxFile == null) { idxFile = 0; }
+    var ifrm1 = document.createElement('iframe');
+    ifrm1.style.display = 'none';
+    ifrm1.src = aryFilename[idxFile];
+    ifrm1.onload = ifrm1_onload;
+    ifrm1['aryFilename'] = aryFilename;
+    ifrm1['fnEach']      = fnEach;
+    ifrm1['fnFinish']    = fnFinish;
+    ifrm1['isHtmlFile']  = isHtmlFile;
+    ifrm1['idxFile']     = idxFile;
+    document.body.appendChild(ifrm1);
+}
+function ifrm1_onload() {
+    var ifrm1 = this;
+    if (ifrm1.isHtmlFile) {
+        ifrm1.fnEach.call(this, ifrm1.src, ifrm1.contentDocument.documentElement.innerHTML);
+    }
+    else {
+        ifrm1.fnEach.call(this, ifrm1.src, ifrm1.contentDocument.body.children[0].innerHTML);
+    }
+    if (ifrm1.idxFile == ifrm1.aryFilename.length - 1) {
+        var _aryFilename = ifrm1.aryFilename;
+        var _fnFinish    = ifrm1.fnFinish;
+        document.body.removeChild(ifrm1);
+        ifrm1 = null;
+        _fnFinish.call(this, _aryFilename);
+    }
+    else {
+        ifrm1.idxFile++;
+        var _aryFilename = ifrm1.aryFilename;
+        var _fnEach      = ifrm1.fnEach;
+        var _fnFinish    = ifrm1.fnFinish;
+        var _isHtmlFile  = ifrm1.isHtmlFile;
+        var _idxFile     = ifrm1.idxFile;
+        document.body.removeChild(ifrm1);
+        ifrm1 = null;
+        iframeLoadFile(_aryFilename, _fnEach, _fnFinish, _isHtmlFile, _idxFile);
+    }
+}
+//Usage
+//var aryFilename = [
+//    'tag-center/rebol2-function-tag.txt',
+//    'tag-center/red-function-tag.txt',
+//];
+//iframeLoadFile(aryFilename, function (fileName, fileContext) {
+//    alert(fileName + ' : ' + fileContext.length);
+//}, function (_aryFilename) {
+//    alert(_aryFilename.length + ' files loaded');
+//}
+//, false);
+</script>
+<script>
+// http://jsfiddle.net/oliverw/z51a6bsg/
+var strJson_HelpTagsContents;
+function decode64(input) {
+    var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    var output = "";
+    var chr1, chr2, chr3 = "";
+    var enc1, enc2, enc3, enc4 = "";
+    var i = 0;
+
+    // remove all characters that are not A-Z, a-z, 0-9, +, /, or =
+    var base64test = /[^A-Za-z0-9\+\/\=]/g;
+    if (base64test.exec(input)) {
+        alert("There were invalid base64 characters in the input text.\n" +
+        "Valid base64 characters are A-Z, a-z, 0-9, '+', '/', and '='\n" +
+        "Expect errors in decoding.");
+    }
+    input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+    do {
+        enc1 = keyStr.indexOf(input.charAt(i++));
+        enc2 = keyStr.indexOf(input.charAt(i++));
+        enc3 = keyStr.indexOf(input.charAt(i++));
+        enc4 = keyStr.indexOf(input.charAt(i++));
+
+        chr1 = (enc1 << 2) | (enc2 >> 4);
+        chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+        chr3 = ((enc3 & 3) << 6) | enc4;
+
+        output = output + String.fromCharCode(chr1);
+
+        if (enc3 != 64) {
+            output = output + String.fromCharCode(chr2);
+        }
+        if (enc4 != 64) {
+            output = output + String.fromCharCode(chr3);
+        }
+
+        chr1 = chr2 = chr3 = "";
+        enc1 = enc2 = enc3 = enc4 = "";
+
+    } while (i < input.length);
+
+    return unescape(output);
+}
+function unencodeHtml(escapedHtml) {
+	var elem = document.createElement('div');
+	elem.innerHTML = escapedHtml;
+	var result = '';
+	// Chrome splits innerHTML into many child nodes, each one at most 65536.
+	// Whereas FF creates just one single huge child node.
+	for (var i = 0; i < elem.childNodes.length; ++i) {
+	  result = result + elem.childNodes[i].nodeValue;
+	}
+	return result;
+}
+function encodeHtml(html) {
+    return document.createElement('a').appendChild(document.createTextNode(html)).parentNode.innerHTML;
+};
+function init() {
+    fileLoaded(decode64(strJson_HelpTagsContents));
+    document.getElementById('btnClearInclude').onclick = function () { clear_IncludeExclude('sp_include_list'); };
+    $('[data-toggle="offcanvas"]').click(function () {
+        $('.row-offcanvas').toggleClass('active')
+    });
+}
+
+var json_HelpTagsContents;
+function fileLoaded() {
+    ul_helps = document.getElementById('ul_helps'); ul_helps.innerHTML = '';
+    json_HelpTagsContents = JSON.parse(arguments[0]); //strJson_HelpTagsContents
+    for (var help in json_HelpTagsContents) {
+	    json_HelpTagsContents[help]['className'] = 'list-group-item';
+
+	    //var li1 = document.createElement('li');
+	    //li1.id = 'li_help_' + encodeHtml(help);
+	    //li1.className = 'div-help-show';
+	    //li1.innerHTML = help;
+	    //li1.onclick = aclick;
+        //ul_helps.appendChild(li1);
+
+	    var a = document.createElement('a');
+	    a.id = 'li_help_' + encodeHtml(help);
+	    a.className = 'list-group-item';
+	    a.innerHTML = help;
+	    a.href = '#';
+	    a.onclick = aclick;
+        ul_helps.appendChild(a);
+
+    }
+    prepareTag(json_HelpTagsContents);
+}
+var iframe1Content = '';
+function aclick() {
+    document.getElementById('div_help_name').innerHTML = this.innerHTML;
+    var name = unencodeHtml(this.innerHTML);
+    var attr = ['usage', 'description', 'arguments', 'refinements', 'tags', 'extra1']
+    for (var i = 0; i < attr.length; i++) {
+        document.getElementById(attr[i]).innerHTML = '';
+    }
+    if (json_HelpTagsContents[name] != null) {
+        for (var i = 0; i < attr.length; i++) {
+	        var extra1 = json_HelpTagsContents[name][attr[i]];
+	        if (attr[i] == 'extra1') {
+		        extra1 = decode64(extra1);
+		        document.getElementById(attr[i]).innerHTML = extra1;
+		    }
+		    else {
+                document.getElementById(attr[i]).innerHTML = unencodeHtml(extra1).replace(/\r\n/g, '<br/>').replace(/\r/g, '<br/>').replace(/\n/g, '<br/>').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+	        }
+	    }
+    }
+
+    var iframe1 = document.getElementById('iframe1');
+    var innerDoc = (iframe1.contentDocument) ? iframe1.contentDocument : iframe1.contentWindow.document;
+    if (iframe1Content == '') {
+        iframe1Content = innerDoc.body.innerHTML;
+    }
+    var extra2 = json_HelpTagsContents[name]['extra2'];
+    if (extra2 == '') {
+        iframe1.style.display = 'none';
+        innerDoc.body.innerHTML = iframe1Content;
+    }
+    else {
+        iframe1.style.display = 'block';
+        var aryFilename = [extra2];
+        iframeLoadFile(aryFilename, function (fileName, fileContext) {
+            innerDoc.body.children[0].innerHTML = fileContext;
+            iframe1.contentWindow._strapdown(iframe1.contentWindow, innerDoc);
+            var evt = window.document.createEvent('UIEvents'); 
+            evt.initUIEvent('resize', true, false, window, 0); 
+            window.dispatchEvent(evt);
+        }, function (_aryFilename) {
+            //alert(_aryFilename.length + ' files loaded');
+        }
+        , true);
+    }
+    return false;
+}
+</script>
+
+<script>
+var necessary_tags = ['red'];
+var dicShow_TagHelps = {}; var dicHide_TagHelps = {};
+function prepareTag(json_HelpTagsContents) {
+    for (var help in json_HelpTagsContents) {
+        var aryTag = json_HelpTagsContents[help].tags.split('|');
+        for (var i = 0; i < aryTag.length; i++) {
+            var tag = aryTag[i];
+            if (dicShow_TagHelps[tag] == null) {
+                dicShow_TagHelps[tag] = [];
+            }
+            var valueIsExist = false;
+            for (var j = 0; j < dicShow_TagHelps[tag].length; j++) {
+                if (dicShow_TagHelps[tag][j] == help) {
+                    valueIsExist = true;
+                    break;
+                }
+            }
+            if (valueIsExist == false) {
+                dicShow_TagHelps[tag].push(help);
+            }
+        }
+    }
+    var arySortedTag = [];
+    for (var tag in dicShow_TagHelps) {
+        arySortedTag.push(tag);
+    }
+    arySortedTag.sort();
+    var temp = {};
+    for (var i = 0; i < arySortedTag.length; i++) {
+        temp[arySortedTag[i]] = dicShow_TagHelps[arySortedTag[i]];
+    }
+    dicShow_TagHelps = temp; temp = null; arySortedTag = null;
+
+    var div_tags = document.getElementById('div_tags');
+    div_tags.innerHTML = '';
+    for (var tag in dicShow_TagHelps) {
+        var id = 'div_tag_' + encodeHtml(tag);
+        var div_tag = document.getElementById(id);
+        if (div_tag == null) {
+            div_tag = document.createElement('a');
+            div_tag.id = id;
+            div_tag.innerHTML = tag;
+            div_tag.onclick = function () { appendInclude(this.innerHTML); }
+            div_tags.appendChild(div_tag);
+        }
+        div_tag.className = 'list-group-item';
+    }
+    for (var i = 0; i < necessary_tags.length; i++) {
+        appendInclude(necessary_tags[i]);
+    }
+}
+
+function appendInclude(tag) {
+    dicHide_TagHelps[tag] = dicShow_TagHelps[tag];
+    delete dicShow_TagHelps[tag];
+    calculateTag();
+}
+function remove_Include_Exclude(id) {
+    if (necessary_tags.every(function (element, index, array) {
+        return element != id.split('span_include_tag_')[1];
+    })) {
+        tag = id.split('span_include_tag_')[1];
+        dicShow_TagHelps[tag] = dicHide_TagHelps[tag];
+        delete dicHide_TagHelps[tag];
+        calculateTag();
+    }
+}
+function clear_IncludeExclude(id) {
+    for (var i = 0; i < sp_include_list.children.length; i++) {
+        var sp = sp_include_list.children[i];
+        var tag = sp.id.split('span_include_tag_')[1];
+        dicShow_TagHelps[tag] = dicHide_TagHelps[tag];
+        delete dicHide_TagHelps[tag];
+    }
+    calculateTag();
+
+	for (var i = 0; i < necessary_tags.length; i++) {
+    	appendInclude(necessary_tags[i]);
+    }
+}
+
+function calculateTag() {
+    var intersection1 = [];
+    var sp_include_list = document.getElementById('sp_include_list');
+    sp_include_list.innerHTML = ''; // slower ? // while (sp_include_list.firstChild) { sp_include_list.removeChild(sp_include_list.firstChild); }
+    for (var tag in dicHide_TagHelps) {
+        var id = 'div_tag_' + encodeHtml(tag);
+        var div_tag = document.getElementById(id);
+        div_tag.className = 'div-tag-hide';
+
+        //var span = document.createElement('span');
+        var span = document.createElement('a');
+        span.id = 'span_include_tag_' + encodeHtml(tag);
+        span.innerHTML = tag;
+        span.className = 'list-group-item-color';
+        span.onclick = function () { remove_Include_Exclude(this.id); }
+        sp_include_list.appendChild(span);
+
+        if (intersection1.length == 0) {
+            intersection1 = dicHide_TagHelps[tag];
+        }
+        else {
+            intersection1 = dicHide_TagHelps[tag].filter(function (_value) {
+                return (intersection1.indexOf(_value) > -1);
+            });
+        }
+    }
+
+    document.getElementById('div_help_count').innerHTML = 'Help (' + intersection1.length + ')';
+    for (var help in json_HelpTagsContents) {
+        if (intersection1.indexOf(help) > -1) {
+            json_HelpTagsContents[help]['className'] = 'list-group-item';
+        }
+        else {
+            json_HelpTagsContents[help]['className'] = 'div-help-hide';
+        }
+        var id = 'li_help_' + encodeHtml(help);
+        document.getElementById(id).className = json_HelpTagsContents[help]['className'];
+    }
+
+    for (var tag in dicShow_TagHelps) {
+        var id = 'div_tag_' + encodeHtml(tag);
+        var div_tag = document.getElementById(id);
+        div_tag.className = 'list-group-item';
+
+        var intersection2 = dicShow_TagHelps[tag].filter(function (_value) {
+            return (intersection1.indexOf(_value) > -1);
+        });
+        if (intersection2.length == 0) {
+            div_tag.className = 'div-tag-hide';
+        }
+    }
+
+    // speacil case
+    var count_selected = 0;
+    for (var tag in dicHide_TagHelps) {
+        count_selected = count_selected + 1;
+    }
+    if (count_selected == 0) {
+        var div_tags = document.getElementById('div_tags');
+        for (var i = 0; i < div_tags.children.length; i++) {
+        	div_tags.children[i].className = 'list-group-item';
+        }
+        var ul_helps = document.getElementById('ul_helps');
+        for (var i = 0; i < ul_helps.children.length; i++) {
+        	ul_helps.children[i].className = 'list-group-item';
+        }
+    }
+}
+</script>
+
+<script>window.onload = function () { init(); }</script>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-fixed-top navbar-inverse">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Red Function Dictionary</a>
+        </div>
+        <div style="height: 0.8px;" aria-expanded="false" id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div><!-- /.nav-collapse -->
+      </div><!-- /.container -->
+    </nav><!-- /.navbar -->
+
+    <div class="container">
+
+      <div class="row row-offcanvas row-offcanvas-right">
+
+        <div class="col-xs-12 col-sm-9">
+          <p class="pull-right visible-xs">
+            <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
+          </p>
+          <div class="jumbotron">
+            <h2 id="div_help_name">Section title</h2>
+            <h4>USAGE</h4>
+            <div id='usage' class="div-space-wrap"></div><br/>
+            <h4>DESCRIPTION</h4>
+            <div id='description' class="div-space-wrap"></div>
+            <div id='extra1'class="div-space-wrap"></div>
+<iframe src="template-Auto-Documentation_files/iframe/template.html" id="iframe1" onload="
+var ifrm = this;
+function SetCwinHeight(obj){
+  obj.style.height = 0; //Safari
+  obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+};
+SetCwinHeight(ifrm);
+window.addEventListener('resize', function(){SetCwinHeight(ifrm);}, false);
+" width="100%" height="1px" marginwidth="0" marginheight="0" scrolling="No" frameborder="0">
+</iframe>
+            <br/>
+            <h4>ARGUMENTS</h4>
+            <div id='arguments' class="div-space-wrap"></div><br/>
+            <h4>REFINEMENTS:</h4>
+            <div id='refinements' class="div-space-wrap"></div><br/>
+            <h4>EXAMPLES</h4>
+            <br/>
+            <h4>TAGS</h4>
+            <div id='tags' class="div-space-wrap"></div>
+          </div>
+        </div>
+
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas">
+          <h4>Tags</h4>
+          <input type="button" id="btnClearInclude" value="clear" />
+          <div class="list-group" id="sp_include_list"></div>
+          <div class="list-group" id="div_tags">red</div>
+
+          <h4 id="div_help_count">Helps</h4>
+          <div class="list-group" id="ul_helps">
+            <a href="#" class="list-group-item active">Link</a>
+            <a href="#" class="list-group-item">Link</a>
+            <a href="#" class="list-group-item">Link</a>
+          </div>
+        </div><!--/.sidebar-offcanvas-->
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <p>© FullStack 2015</p>
+      </footer>
+
+    </div><!--/.container-->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="template-Auto-Documentation_files/jquery.js"></script>
+    <script src="template-Auto-Documentation_files/bootstrap.js"></script>
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="template-Auto-Documentation_files/ie10-viewport-bug-workaround.js"></script>
+
+<script>strJson_HelpTagsContents='$red-help-json$'</script>
+</body></html>
